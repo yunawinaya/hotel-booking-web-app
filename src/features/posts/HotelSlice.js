@@ -97,39 +97,36 @@ export const saveHotel = createAsyncThunk(
     hotelDescContent,
     hotelFeatureContent,
     hotelRoomContent,
-    file,
+    files,
   }) => {
     try {
       let imageUrl = "";
-      if (file !== null) {
-        const imageRef = ref(storage, `hotels/${file.name}`);
-        const response = await uploadBytes(imageRef, file);
+      if (files !== null) {
+        const imageRef = ref(storage, `hotels/${files.name}`);
+        const response = await uploadBytes(imageRef, files);
         imageUrl = await getDownloadURL(response.ref);
       }
 
-      const hotel = {
-        id: 1,
+      const hotelsRef = collection(db, `hotels`);
+      const newHotelRef = doc(hotelsRef);
+      await setDoc(newHotelRef, {
         name: hotelNameContent,
         address: hotelAddressContent,
         slug: hotelNameContent.toLowerCase().replace(/\s+/g, "-"),
         rating: hotelRatingContent,
         pricePerNight: hotelPriceContent,
-        thumbnail: imageUrl[0],
-        images: imageUrl.map((url, index) => ({
-          id: index + 1,
-          img: url,
-        })),
+        thumbnail: imageUrl,
+        // images: imageUrl.map((url, index) => ({
+        //   id: index + 1,
+        //   img: url,
+        // })),
         aboutThePlace: hotelDescContent,
         features: hotelFeatureContent,
         rooms: hotelRoomContent.map((room, index) => ({
           id: index + 1,
           content: room,
         })),
-      };
-
-      const hotelsRef = collection(db, `hotels`);
-      const newHotelRef = doc(hotelsRef);
-      await setDoc(newHotelRef, hotel);
+      });
       const newHotel = await getDoc(newHotelRef);
 
       return {
@@ -143,7 +140,7 @@ export const saveHotel = createAsyncThunk(
   }
 );
 
-const postsSlice = createSlice({
+const hotelsSlice = createSlice({
   name: "posts",
   initialState: { posts: [], loading: true },
   extraReducers: (builder) => {
@@ -173,4 +170,4 @@ const postsSlice = createSlice({
   },
 });
 
-export default postsSlice.reducer;
+export default hotelsSlice.reducer;

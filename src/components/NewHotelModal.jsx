@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Box, Button, Modal, TextField } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { saveHotel } from "../features/posts/PostSlice";
+import { saveHotel } from "../features/posts/HotelSlice";
 import { bookModalStyle } from "../helper/styles";
+import { Image } from "react-bootstrap";
 
 export default function NewHotelModal({ show, handleClose }) {
   const [hotelNameContent, setHotelNameContent] = useState("");
@@ -12,7 +13,7 @@ export default function NewHotelModal({ show, handleClose }) {
   const [hotelDescContent, setHotelDescContent] = useState("");
   const [hotelFeatureContent, setHotelFeatureContent] = useState("");
   const [hotelRoomContent, setHotelRoomContent] = useState([]);
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const dispatch = useDispatch();
 
   const handleSave = () => {
@@ -25,7 +26,7 @@ export default function NewHotelModal({ show, handleClose }) {
         hotelDescContent,
         hotelFeatureContent,
         hotelRoomContent,
-        file,
+        files,
       })
     );
     handleClose();
@@ -36,11 +37,11 @@ export default function NewHotelModal({ show, handleClose }) {
     setHotelDescContent("");
     setHotelFeatureContent("");
     setHotelRoomContent([]);
-    setFile(null);
+    setFiles([]);
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    setFiles(e.target.files);
   };
 
   const handleRoomInputChange = (e, index) => {
@@ -67,8 +68,8 @@ export default function NewHotelModal({ show, handleClose }) {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={bookModalStyle}>
-          <h2>Add New Hotel</h2>
+        <Box sx={{ ...bookModalStyle, maxHeight: "90vh", overflowY: "auto" }}>
+          <h3>Add Accommodation</h3>
           <TextField
             label="Hotel Name"
             variant="outlined"
@@ -119,17 +120,17 @@ export default function NewHotelModal({ show, handleClose }) {
             required
           />
           <TextField
-            label="Features"
+            label="Amenities"
             variant="outlined"
             fullWidth
             margin="normal"
             value={hotelFeatureContent}
             onChange={(e) => setHotelFeatureContent(e.target.value)}
           />
-          <div style={{ marginBottom: "16px" }}>
-            <h4>Rooms</h4>
+          <div className="mb-3">
+            <h5 className="mt-1">Property Highlights</h5>
             {hotelRoomContent.map((room, index) => (
-              <div key={index} style={{ marginBottom: "16px" }}>
+              <div key={index} className="mb-3">
                 <TextField
                   label={`Room ${index + 1}`}
                   variant="outlined"
@@ -152,13 +153,27 @@ export default function NewHotelModal({ show, handleClose }) {
               variant="outlined"
               color="primary"
               onClick={handleAddRoom}
-              style={{ marginTop: "8px" }}
+              className="mt-2"
             >
               Add Room
             </Button>
           </div>
-          <input type="file" onChange={handleFileChange} />
-          <div style={{ marginTop: "16px" }}>
+          <div>
+            <div>
+              {/* {files.map((file, index) => (
+                <span key={index}>
+                  <Image
+                    fluid
+                    src={URL.createObjectURL(file)}
+                    alt="preview"
+                    width={75}
+                  />
+                </span>
+              ))} */}
+            </div>
+            <input type="file" onChange={handleFileChange} />
+          </div>
+          <div className="mt-3">
             <Button variant="outlined" onClick={handleClose}>
               Close
             </Button>

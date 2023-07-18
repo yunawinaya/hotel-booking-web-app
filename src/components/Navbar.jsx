@@ -70,6 +70,9 @@ export const Navbar = () => {
           >
             NomadsLyfe
           </Typography>
+          <Button color="error" onClick={handleOpenModal}>
+            Add Accommodation
+          </Button>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <FormGroup sx={{ display: { xs: "none", md: "flex" } }}>
               <FormControlLabel
@@ -115,7 +118,6 @@ export const Navbar = () => {
                 sx={{ width: 32, height: 32 }}
               />
             </IconButton>
-            <Button onClick={handleOpenModal}>Add New Hotel</Button>
           </Box>
         </Toolbar>
         {isModalOpen && (

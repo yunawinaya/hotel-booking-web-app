@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import postsReducer from "./features/posts/PostSlice";
+import hotelsReducer from "./features/posts/HotelSlice";
 
 export default configureStore({
   reducer: {
-    posts: postsReducer,
+    hotels: hotelsReducer,
   },
 });
