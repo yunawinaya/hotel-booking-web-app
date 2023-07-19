@@ -7,12 +7,14 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import { db, storage } from "../../lib/firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
-export const deletePost = createAsyncThunk(
-  "posts/deletePost",
+export const deleteHotel = createAsyncThunk(
+  "hotels/deleteHotel",
   async ({ userId, postId }) => {
     try {
       // Reference to the post
@@ -29,8 +31,8 @@ export const deletePost = createAsyncThunk(
   }
 );
 
-export const updatePost = createAsyncThunk(
-  "posts/updatePost",
+export const updateHotel = createAsyncThunk(
+  "posts/updateHotel",
   async ({ userId, postId, newPostContent, newFile }) => {
     try {
       // Upload the new file to the storage if it exists and get its URL
@@ -67,19 +69,42 @@ export const updatePost = createAsyncThunk(
   }
 );
 
-export const fetchPostsByUser = createAsyncThunk(
-  "posts/fetchByUser",
-  async (userId) => {
+export const fetchHotels = createAsyncThunk("hotels/fetchHotels", async () => {
+  try {
+    const hotelsRef = collection(db, `hotels`);
+
+    const querySnapshot = await getDocs(hotelsRef);
+    const docs = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return docs;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
+
+export const fetchHotelBySlug = createAsyncThunk(
+  "hotels/fetchHotelBySlug",
+  async (slug) => {
     try {
-      const postsRef = collection(db, `users/${userId}/posts`);
+      const hotelsRef = collection(db, "hotels");
+      const querySnapshot = await getDocs(
+        query(hotelsRef, where("slug", "==", slug))
+      );
 
-      const querySnapshot = await getDocs(postsRef);
-      const docs = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      if (querySnapshot.empty) {
+        throw new Error("Hotel not found");
+      }
 
-      return docs;
+      const hotel = querySnapshot.docs[0].data();
+
+      return {
+        id: querySnapshot.docs[0].id,
+        ...hotel,
+      };
     } catch (error) {
       console.error(error);
       throw error;
@@ -144,31 +169,36 @@ export const saveHotel = createAsyncThunk(
 );
 
 const hotelsSlice = createSlice({
-  name: "posts",
-  initialState: { posts: [], loading: true },
+  name: "hotels",
+  initialState: { hotels: [], loading: true },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchPostsByUser.fulfilled, (state, action) => {
-        state.posts = action.payload;
+      .addCase(fetchHotels.fulfilled, (state, action) => {
+        state.hotels = action.payload;
         state.loading = false;
       })
-      .addCase(saveHotel.fulfilled, (state, action) => {
-        state.posts = [action.payload, ...state.posts];
+      .addCase(fetchHotelBySlug.fulfilled, (state, action) => {
+        state.hotels = action.payload;
       })
-      .addCase(updatePost.fulfilled, (state, action) => {
-        const updatedPost = action.payload;
+      .addCase(saveHotel.fulfilled, (state, action) => {
+        state.hotels = [action.payload, ...state.posts];
+      })
+      .addCase(updateHotel.fulfilled, (state, action) => {
+        const updatedHotel = action.payload;
         // Find and update the post in the state
-        const postIndex = state.posts.findIndex(
-          (post) => post.id === updatedPost.id
+        const hotelIndex = state.hotels.findIndex(
+          (hotel) => hotel.id === updatedHotel.id
         );
-        if (postIndex !== -1) {
-          state.posts[postIndex] = updatedPost;
+        if (hotelIndex !== -1) {
+          state.posts[hotelIndex] = updatedHotel;
         }
       })
-      .addCase(deletePost.fulfilled, (state, action) => {
-        const deletedPostId = action.payload;
+      .addCase(deleteHotel.fulfilled, (state, action) => {
+        const deletedHotelId = action.payload;
         // Filter out the deleted post from state
-        state.posts = state.posts.filter((post) => post.id !== deletedPostId);
+        state.hotels = state.hotels.filter(
+          (hotel) => hotel.id !== deletedHotelId
+        );
       });
   },
 });

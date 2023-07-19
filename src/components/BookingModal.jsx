@@ -49,7 +49,13 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
   }
 
   useEffect(() => {
-    setGuests(numberOfGuests(hotelInfo?.rooms[0]?.content?.split(" ")[0]));
+    // Check if hotelInfo and rooms array exist and have at least one item
+    if (hotelInfo?.rooms && hotelInfo.rooms.length > 0) {
+      // Check if content property exists and is not empty
+      if (hotelInfo.rooms[0]?.content) {
+        setGuests(numberOfGuests(hotelInfo.rooms[0].content.split(" ")[0]));
+      }
+    }
   }, [hotelInfo]);
 
   function getTotalNightsBooked() {
