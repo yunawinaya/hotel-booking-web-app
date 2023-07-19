@@ -10,20 +10,19 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { db, storage } from "../../lib/firebase";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { db } from "../../lib/firebase";
 
 export const deleteHotel = createAsyncThunk(
   "hotels/deleteHotel",
-  async ({ userId, postId }) => {
+  async ({ hotelId }) => {
     try {
-      // Reference to the post
-      const postRef = doc(db, `users/${userId}/posts/${postId}`);
-      console.log(`users/${userId}/posts/${postId}`);
-      // Delete the post
-      await deleteDoc(postRef);
-      // Return the ID of the deleted post
-      return postId;
+      const hotelRef = doc(db, `hotels/${hotelId}`);
+      const hotelSnapshot = await getDoc(hotelRef);
+      if (!hotelSnapshot.exists()) {
+        throw new Error("Hotel not found");
+      }
+      await deleteDoc(hotelRef);
+      return hotelId;
     } catch (error) {
       console.error(error);
       throw error;
@@ -32,33 +31,81 @@ export const deleteHotel = createAsyncThunk(
 );
 
 export const updateHotel = createAsyncThunk(
-  "posts/updateHotel",
-  async ({ userId, postId, newPostContent, newFile }) => {
+  "hotels/updateHotel",
+  async ({
+    hotelId,
+    newHotelNameContent,
+    newHotelAddressContent,
+    newHotelRatingContent,
+    newHotelPriceContent,
+    newHotelDescContent,
+    // newHotelFeatureContent,
+    // newHotelRoomContent,
+    // newUrls,
+  }) => {
     try {
-      // Upload the new file to the storage if it exists and get its URL
-      let newImageUrl;
-      if (newFile) {
-        const imageRef = ref(storage, `posts/${newFile.name}`);
-        const response = await uploadBytes(imageRef, newFile);
-        newImageUrl = await getDownloadURL(response.ref);
-      }
-      // Reference to the existing post
-      const postRef = doc(db, `users/${userId}/posts/${postId}`);
-      // Get the current post data
-      const postSnap = await getDoc(postRef);
-      if (postSnap.exists()) {
-        const postData = postSnap.data();
-        // Update the post content and the image URL
+      const hotelRef = doc(db, `hotels/${hotelId}`);
+      const hotelSnap = await getDoc(hotelRef);
+      if (hotelSnap.exists()) {
+        const hotelData = hotelSnap.data();
+
+        // const updatedRooms = hotelData.rooms.map((room) => {
+        //   const newRoomContent = newHotelRoomContent.find(
+        //     (content) => content.id === room.id
+        //   )?.content;
+        //   if (newRoomContent) {
+        //     return {
+        //       ...room,
+        //       content: newRoomContent,
+        //     };
+        //   }
+        //   return room;
+        // });
+
+        // const updatedFeatures = hotelData.features.map((feature) => {
+        //   const newFeatureText = newHotelFeatureContent.find(
+        //     (content) => content.id === feature.id
+        //   )?.text;
+        //   if (newFeatureText) {
+        //     return {
+        //       ...feature,
+        //       text: newFeatureText,
+        //     };
+        //   }
+        //   return feature;
+        // });
+
+        // const updatedImages = hotelData.images.map((image) => {
+        //   const newImageUrl = newUrls.find(
+        //     (urlObj) => urlObj.id === image.id
+        //   )?.url;
+        //   if (newImageUrl) {
+        //     return {
+        //       ...image,
+        //       img: newImageUrl,
+        //     };
+        //   }
+        //   return image;
+        // });
+
         const updatedData = {
-          ...postData,
-          content: newPostContent || postData.content,
-          imageUrl: newImageUrl || postData.imageUrl,
+          ...hotelData,
+          name: newHotelNameContent || hotelData.name,
+          address: newHotelAddressContent || hotelData.address,
+          slug:
+            newHotelNameContent.toLowerCase().replace(/\s+/g, "-") ||
+            hotelData.slug,
+          rating: newHotelRatingContent || hotelData.rating,
+          pricePerNight: newHotelPriceContent || hotelData.pricePerNight,
+          aboutThePlace: newHotelDescContent || hotelData.aboutThePlace,
+          // features: updatedFeatures || hotelData.features,
+          // rooms: updatedRooms || hotelData.rooms,
+          // images: updatedImages || hotelData.images,
         };
-        // Update the existing document in Firestore
-        await updateDoc(postRef, updatedData);
-        // Return the post with updated data
-        const updatedPost = { id: postId, ...updatedData };
-        return updatedPost;
+
+        await updateDoc(hotelRef, updatedData);
+        const updatedHotel = { id: hotelId, ...updatedData };
+        return updatedHotel;
       } else {
         throw new Error("Post does not exist");
       }
@@ -181,21 +228,19 @@ const hotelsSlice = createSlice({
         state.hotels = action.payload;
       })
       .addCase(saveHotel.fulfilled, (state, action) => {
-        state.hotels = [action.payload, ...state.posts];
+        state.hotels = [action.payload, ...state.hotels];
       })
       .addCase(updateHotel.fulfilled, (state, action) => {
         const updatedHotel = action.payload;
-        // Find and update the post in the state
         const hotelIndex = state.hotels.findIndex(
           (hotel) => hotel.id === updatedHotel.id
         );
         if (hotelIndex !== -1) {
-          state.posts[hotelIndex] = updatedHotel;
+          state.hotels[hotelIndex] = updatedHotel;
         }
       })
       .addCase(deleteHotel.fulfilled, (state, action) => {
         const deletedHotelId = action.payload;
-        // Filter out the deleted post from state
         state.hotels = state.hotels.filter(
           (hotel) => hotel.id !== deletedHotelId
         );

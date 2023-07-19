@@ -9,16 +9,20 @@ import {
   Paper,
   Box,
   Typography,
+  Button,
 } from "@mui/material";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
 import { Navbar } from "../components/Navbar";
 import { AuthContext } from "../context/AuthContext";
 import { db } from "../lib/firebase";
+import { UpdateBookingModal } from "../components/UpdateBookingModal";
 
 export default function MyProfile() {
   const { currentUser } = useContext(AuthContext);
   const [bookings, setBookings] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -29,8 +33,8 @@ export default function MyProfile() {
     const unsubscribe = onSnapshot(bookings, (snapshot) => {
       setBookings(
         snapshot.docs
-          .map((doc) => ({ data: doc.data() }))
-          .sort((a, b) => b.bookingEndDate - a.bookingStartDate)
+          .map((doc) => ({ id: doc.id, data: doc.data() }))
+          .sort((a, b) => b.data.bookingEndDate - a.data.bookingStartDate)
       );
     });
 
@@ -38,6 +42,16 @@ export default function MyProfile() {
       unsubscribe();
     };
   }, [currentUser]);
+
+  const handleOpenModal = (booking) => {
+    setOpenModal(true);
+    setSelectedBooking(booking);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedBooking(null);
+  };
 
   return (
     <>
@@ -76,6 +90,7 @@ export default function MyProfile() {
                 <TableCell align="right">Check Out</TableCell>
                 <TableCell align="right">Number of guests</TableCell>
                 <TableCell align="right">Price</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -101,12 +116,27 @@ export default function MyProfile() {
                     {row?.data?.numberOfGuests}
                   </TableCell>
                   <TableCell align="right">${row?.data?.price}</TableCell>
+                  <TableCell align="right">
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleOpenModal(row)}
+                    >
+                      View Details
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       </Container>
+      {selectedBooking && (
+        <UpdateBookingModal
+          open={openModal}
+          handleClose={handleCloseModal}
+          hotelInfo={selectedBooking.data}
+        />
+      )}
     </>
   );
 }
