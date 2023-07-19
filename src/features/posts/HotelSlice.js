@@ -97,36 +97,39 @@ export const saveHotel = createAsyncThunk(
     hotelDescContent,
     hotelFeatureContent,
     hotelRoomContent,
-    files,
+    urls,
   }) => {
     try {
-      let imageUrl = "";
-      if (files !== null) {
-        const imageRef = ref(storage, `hotels/${files.name}`);
-        const response = await uploadBytes(imageRef, files);
-        imageUrl = await getDownloadURL(response.ref);
-      }
-
-      const hotelsRef = collection(db, `hotels`);
+      const hotelsRef = collection(db, "hotels");
       const newHotelRef = doc(hotelsRef);
-      await setDoc(newHotelRef, {
+
+      const hotelData = {
         name: hotelNameContent,
         address: hotelAddressContent,
         slug: hotelNameContent.toLowerCase().replace(/\s+/g, "-"),
         rating: hotelRatingContent,
         pricePerNight: hotelPriceContent,
-        thumbnail: imageUrl,
-        // images: imageUrl.map((url, index) => ({
-        //   id: index + 1,
-        //   img: url,
-        // })),
         aboutThePlace: hotelDescContent,
-        features: hotelFeatureContent,
+        features: hotelFeatureContent.map((feature, index) => ({
+          id: index + 1,
+          text: feature,
+        })),
         rooms: hotelRoomContent.map((room, index) => ({
           id: index + 1,
           content: room,
         })),
-      });
+      };
+
+      if (urls.length > 0) {
+        hotelData.thumbnail = urls[0];
+        hotelData.images = urls.map((url, index) => ({
+          id: index + 1,
+          img: url,
+        }));
+      }
+
+      await setDoc(newHotelRef, hotelData);
+
       const newHotel = await getDoc(newHotelRef);
 
       return {
