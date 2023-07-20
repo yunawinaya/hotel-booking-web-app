@@ -78,6 +78,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
       numberOfGuests: selectedGuestCount,
       bookingStartDate: `${dates[0].startDate}`,
       bookingEndDate: `${dates[0].endDate}`,
+      pricePerNight: hotelInfo?.pricePerNight,
       price: hotelInfo?.pricePerNight * getTotalNightsBooked(),
       bookedBy: {
         uid,

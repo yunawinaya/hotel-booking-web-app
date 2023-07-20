@@ -1,4 +1,6 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import "react-date-range/dist/styles.css"; //
+import "react-date-range/dist/theme/default.css";
 import {
   Modal,
   Typography,
@@ -12,21 +14,29 @@ import {
 import { DateRange } from "react-date-range";
 import { getDate } from "date-fns";
 import { AuthContext } from "../context/AuthContext";
-import { updateDoc, doc } from "firebase/firestore";
+import { collection, updateDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { toast } from "react-hot-toast";
 import { bookModalStyle } from "../helper/styles";
+import { useNavigate } from "react-router-dom";
 
-export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
+export const UpdateBookingModal = ({
+  open,
+  handleClose,
+  hotelInfo,
+  bookingInfo,
+}) => {
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [guests, setGuests] = useState();
   const [selectedGuestCount, setSelectedGuestCount] = useState(
-    hotelInfo?.numberOfGuests || 1
+    bookingInfo.numberOfGuests
   );
   const [dates, setDates] = useState([
     {
-      startDate: new Date(hotelInfo?.bookingStartDate),
-      endDate: new Date(hotelInfo?.bookingEndDate),
+      startDate: new Date(bookingInfo.bookingStartDate),
+      endDate: new Date(bookingInfo.bookingEndDate),
       key: "selection",
     },
   ]);
@@ -36,6 +46,25 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
     setSelectedGuestCount(event.target.value);
   };
 
+  function numberOfGuests(maxGuest) {
+    const guestsArr = [];
+
+    for (let i = 1; i <= maxGuest; i++) {
+      guestsArr.push(i);
+    }
+    return guestsArr;
+  }
+
+  useEffect(() => {
+    // Check if hotelInfo and rooms array exist and have at least one item
+    if (hotelInfo?.rooms && hotelInfo.rooms.length > 0) {
+      // Check if content property exists and is not empty
+      if (hotelInfo.rooms[0]?.content) {
+        setGuests(numberOfGuests(hotelInfo.rooms[0].content.split(" ")[0]));
+      }
+    }
+  }, [hotelInfo]);
+
   function getTotalNightsBooked() {
     const startDate = getDate(dates[0].startDate);
     const endDate = getDate(dates[0].endDate);
@@ -43,18 +72,29 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
     return totalNightsBooked;
   }
 
-  const handleUpdateBooking = async () => {
+  getTotalNightsBooked();
+
+  const bookings = collection(db, "bookings");
+
+  const handleReserve = async () => {
     setIsLoading(true);
-    const bookingRef = doc(db, "bookings", hotelInfo.id);
-    await updateDoc(bookingRef, {
+    const { uid, displayName } = currentUser;
+    await updateDoc(bookings, bookingInfo.id, {
+      hotelAddress: hotelInfo.address,
+      hotelName: hotelInfo.name,
       numberOfGuests: selectedGuestCount,
-      bookingStartDate: dates[0].startDate.toISOString(),
-      bookingEndDate: dates[0].endDate.toISOString(),
+      bookingStartDate: `${dates[0].startDate}`,
+      bookingEndDate: `${dates[0].endDate}`,
       price: hotelInfo?.pricePerNight * getTotalNightsBooked(),
+      bookedBy: {
+        uid,
+        displayName,
+      },
     })
       .then(() => {
-        toast.success("Booking updated successfully");
+        toast.success("booking updated successfully");
         handleClose();
+        navigate("/my-profile");
         setIsLoading(false);
       })
       .catch((error) => {
@@ -85,9 +125,9 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
             label="Number of Adults"
             onChange={handleChange}
           >
-            {[...Array(hotelInfo?.numberOfGuests).keys()].map((guest) => (
-              <MenuItem key={guest + 1} value={guest + 1}>
-                {guest + 1}
+            {guests?.map((guest) => (
+              <MenuItem key={guest} value={guest}>
+                {guest}
               </MenuItem>
             ))}
           </Select>
@@ -144,7 +184,7 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
             : 0}
         </Typography>
         <Button
-          onClick={handleUpdateBooking}
+          onClick={handleReserve}
           sx={{ width: "100%", marginTop: 2 }}
           variant="outlined"
           color="primary"

@@ -17,6 +17,7 @@ import { Navbar } from "../components/Navbar";
 import { AuthContext } from "../context/AuthContext";
 import { db } from "../lib/firebase";
 import { UpdateBookingModal } from "../components/UpdateBookingModal";
+import { DeleteBooking } from "../components/DeleteBooking";
 
 export default function MyProfile() {
   const { currentUser } = useContext(AuthContext);
@@ -26,11 +27,11 @@ export default function MyProfile() {
 
   useEffect(() => {
     if (!currentUser) return;
-    const bookings = query(
+    const bookingsQuery = query(
       collection(db, "bookings"),
       where("bookedBy.uid", "==", currentUser?.uid)
     );
-    const unsubscribe = onSnapshot(bookings, (snapshot) => {
+    const unsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
       setBookings(
         snapshot.docs
           .map((doc) => ({ id: doc.id, data: doc.data() }))
@@ -120,9 +121,11 @@ export default function MyProfile() {
                     <Button
                       variant="outlined"
                       onClick={() => handleOpenModal(row)}
+                      className="me-2"
                     >
                       View Details
                     </Button>
+                    <DeleteBooking bookingId={row.id} />
                   </TableCell>
                 </TableRow>
               ))}
