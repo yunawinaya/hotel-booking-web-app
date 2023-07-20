@@ -12,7 +12,7 @@ import {
   Button,
 } from "@mui/material";
 import { DateRange } from "react-date-range";
-import { getDate } from "date-fns";
+import { getDate, addDays, format } from "date-fns";
 import { AuthContext } from "../context/AuthContext";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../lib/firebase";
@@ -85,7 +85,16 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
         timeZone: "Asia/Singapore",
       },
     };
-    console.log(event);
+
+    const appointmentDate = new Date(dates[0].endDate);
+    const reminderDate = addDays(appointmentDate, -1);
+
+    const formattedAppointmentDate = format(appointmentDate, "MM/dd/yyyy");
+    const formattedReminderDate = format(reminderDate, "MM/dd/yyyy");
+
+    const emailSubject = "Reminder: Your reservation in ${hotelInfo.name}";
+    const emailBody = `This is a friendly reminder that your reservation at ${hotelInfo.name} is scheduled for ${formattedAppointmentDate}. We are looking forward to seeing you on ${formattedReminderDate}!`;
+
     await addDoc(bookings, {
       hotelAddress: hotelInfo.address,
       hotelName: hotelInfo.name,
@@ -101,6 +110,11 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
       },
     });
     try {
+      await axios.post("http://localhost:3000/api/send-reminder", {
+        receiver: currentUser.email, // Replace with the actual receiver's email
+        subject: emailSubject,
+        text: emailBody,
+      });
       // Call the backend API to sync event with Google Calendar
       const response = await axios.post(
         "http://localhost:3000/api/sync-booking",
