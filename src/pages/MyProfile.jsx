@@ -49,6 +49,10 @@ export default function MyProfile() {
     setSelectedBooking(booking);
   };
 
+  useEffect(() => {
+    console.log("selectedBooking updated:", selectedBooking);
+  }, [selectedBooking]);
+
   const handleCloseModal = () => {
     setOpenModal(false);
     setSelectedBooking(null);
@@ -137,7 +141,7 @@ export default function MyProfile() {
         <UpdateBookingModal
           open={openModal}
           handleClose={handleCloseModal}
-          hotelInfo={selectedBooking.data}
+          hotelInfo={selectedBooking}
         />
       )}
     </>

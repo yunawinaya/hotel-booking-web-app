@@ -75,10 +75,11 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
     await addDoc(bookings, {
       hotelAddress: hotelInfo.address,
       hotelName: hotelInfo.name,
+      hotelFullGuests: hotelInfo.rooms[0].content.split(" ")[0],
       numberOfGuests: selectedGuestCount,
       bookingStartDate: `${dates[0].startDate}`,
       bookingEndDate: `${dates[0].endDate}`,
-      pricePerNight: hotelInfo?.pricePerNight,
+      pricePerNight: hotelInfo.pricePerNight,
       price: hotelInfo?.pricePerNight * getTotalNightsBooked(),
       bookedBy: {
         uid,

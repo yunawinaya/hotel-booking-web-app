@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import {
   Modal,
   Typography,
@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { DateRange } from "react-date-range";
 import { getDate } from "date-fns";
-import { AuthContext } from "../context/AuthContext";
 import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { LoadingSpinner } from "./LoadingSpinner";
@@ -19,14 +18,13 @@ import { toast } from "react-hot-toast";
 import { bookModalStyle } from "../helper/styles";
 
 export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
-  const { currentUser } = useContext(AuthContext);
   const [selectedGuestCount, setSelectedGuestCount] = useState(
-    hotelInfo?.numberOfGuests || 1
+    hotelInfo?.data.numberOfGuests || 1
   );
   const [dates, setDates] = useState([
     {
-      startDate: new Date(hotelInfo?.bookingStartDate),
-      endDate: new Date(hotelInfo?.bookingEndDate),
+      startDate: new Date(hotelInfo?.data.bookingStartDate),
+      endDate: new Date(hotelInfo?.data.bookingEndDate),
       key: "selection",
     },
   ]);
@@ -48,9 +46,9 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
     const bookingRef = doc(db, "bookings", hotelInfo.id);
     await updateDoc(bookingRef, {
       numberOfGuests: selectedGuestCount,
-      bookingStartDate: dates[0].startDate.toISOString(),
-      bookingEndDate: dates[0].endDate.toISOString(),
-      price: hotelInfo?.pricePerNight * getTotalNightsBooked(),
+      bookingStartDate: `${dates[0].startDate}`,
+      bookingEndDate: `${dates[0].endDate}`,
+      price: hotelInfo?.data.pricePerNight * getTotalNightsBooked(),
     })
       .then(() => {
         toast.success("Booking updated successfully");
@@ -58,6 +56,7 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
         setIsLoading(false);
       })
       .catch((error) => {
+        console.error("Error updating booking:", error);
         toast.error(error);
         setIsLoading(false);
       });
@@ -72,7 +71,7 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
     >
       <Box sx={bookModalStyle}>
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          ${hotelInfo?.pricePerNight} /night
+          ${hotelInfo?.data.pricePerNight} /night
         </Typography>
         <FormControl fullWidth sx={{ marginTop: 3 }}>
           <InputLabel id="demo-simple-select-label">
@@ -85,11 +84,13 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
             label="Number of Adults"
             onChange={handleChange}
           >
-            {[...Array(hotelInfo?.numberOfGuests).keys()].map((guest) => (
-              <MenuItem key={guest + 1} value={guest + 1}>
-                {guest + 1}
-              </MenuItem>
-            ))}
+            {[...Array(parseInt(hotelInfo?.data?.hotelFullGuests)).keys()].map(
+              (guest) => (
+                <MenuItem key={guest + 1} value={guest + 1}>
+                  {guest + 1}
+                </MenuItem>
+              )
+            )}
           </Select>
         </FormControl>
         <InputLabel>Select Dates</InputLabel>
@@ -116,7 +117,7 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
             component="p"
             variant="h6"
           >
-            ${hotelInfo?.pricePerNight} x{" "}
+            ${hotelInfo?.data.pricePerNight} x{" "}
             {dates[0]?.endDate ? getTotalNightsBooked() : 0} nights
           </Typography>
 
@@ -128,7 +129,7 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
           >
             $
             {dates[0]?.endDate
-              ? hotelInfo?.pricePerNight * getTotalNightsBooked()
+              ? hotelInfo?.data.pricePerNight * getTotalNightsBooked()
               : 0}
           </Typography>
         </Box>
@@ -140,7 +141,7 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
         >
           Subtotal: $
           {dates[0]?.endDate
-            ? hotelInfo?.pricePerNight * getTotalNightsBooked()
+            ? hotelInfo?.data.pricePerNight * getTotalNightsBooked()
             : 0}
         </Typography>
         <Button
