@@ -20,6 +20,7 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "react-hot-toast";
 import { bookModalStyle } from "../helper/styles";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export const BookingModal = ({ open, handleClose, hotelInfo }) => {
   const { currentUser } = useContext(AuthContext);
@@ -72,6 +73,19 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
   const handleReserve = async () => {
     setIsLoading(true);
     const { uid, displayName } = currentUser;
+    const event = {
+      summary: `Booking at ${hotelInfo.name}`,
+      description: `Booking for ${selectedGuestCount} guest(s) at ${hotelInfo.name}`,
+      start: {
+        dateTime: new Date(dates[0].startDate.toISOString()),
+        timeZone: "Asia/Singapore",
+      },
+      end: {
+        dateTime: dates[0].endDate.toISOString(),
+        timeZone: "Asia/Singapore",
+      },
+    };
+    console.log(event);
     await addDoc(bookings, {
       hotelAddress: hotelInfo.address,
       hotelName: hotelInfo.name,
@@ -85,17 +99,26 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
         uid,
         displayName,
       },
-    })
-      .then(() => {
-        toast.success("booking successful");
+    });
+    try {
+      // Call the backend API to sync event with Google Calendar
+      const response = await axios.post(
+        "http://localhost:3000/api/sync-booking",
+        event
+      );
+
+      if (response.status === 200) {
+        toast.success("Booking successful");
         handleClose();
         navigate("/my-profile");
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        toast.error(error);
-        setIsLoading(false);
-      });
+      } else {
+        toast.error("Failed to sync event to Google Calendar");
+      }
+    } catch (error) {
+      toast.error("An error occurred during booking");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
