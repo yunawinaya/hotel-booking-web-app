@@ -92,7 +92,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
     const formattedAppointmentDate = format(appointmentDate, "MM/dd/yyyy");
     const formattedReminderDate = format(reminderDate, "MM/dd/yyyy");
 
-    const emailSubject = "Reminder: Your reservation in ${hotelInfo.name}";
+    const emailSubject = `Reminder: Your reservation in ${hotelInfo.name}`;
     const emailBody = `This is a friendly reminder that your reservation at ${hotelInfo.name} is scheduled for ${formattedAppointmentDate}. We are looking forward to seeing you on ${formattedReminderDate}!`;
 
     await addDoc(bookings, {
