@@ -20,7 +20,7 @@ import { MaterialUISwitch } from "./Switch";
 import NewHotelModal from "./NewHotelModal";
 
 export const Navbar = () => {
-  const { currentUser, setDarkMode } = useContext(AuthContext);
+  const { currentUser, setDarkMode, isAdmin } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -70,9 +70,11 @@ export const Navbar = () => {
           >
             NomadsLyfe
           </Typography>
-          <Button color="error" onClick={handleOpenModal}>
-            Add Accommodation
-          </Button>
+          {isAdmin && (
+            <Button color="error" onClick={handleOpenModal}>
+              Add Accommodation
+            </Button>
+          )}
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <FormGroup sx={{ display: { xs: "none", md: "flex" } }}>
               <FormControlLabel

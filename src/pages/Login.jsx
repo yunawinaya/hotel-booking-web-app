@@ -83,6 +83,7 @@ export default function Login() {
           await setDoc(doc(db, "users", user.uid), {
             uid: user.uid,
             photoURL: user.photoURL,
+            isAdmin: false,
           });
         }
       })

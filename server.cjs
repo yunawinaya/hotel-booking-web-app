@@ -2,6 +2,7 @@ const express = require("express");
 const { insertEvent } = require("./google-calender.cjs");
 const { sendEmail } = require("./send-email.cjs");
 const cors = require("cors");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 app.use(cors());
@@ -35,6 +36,24 @@ app.post("/api/send-reminder", async (req, res) => {
   } catch (error) {
     console.error("Error sending the reminder email:", error);
     res.status(500).json({ error: "Failed to send the reminder email" });
+  }
+});
+
+app.post("/charge", async (req, res) => {
+  const { amount, currency, paymentMethodId } = req.body;
+
+  try {
+    await stripe.paymentIntents.create({
+      amount,
+      currency,
+      payment_method: paymentMethodId,
+      confirm: true,
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error processing payment:", error.message);
+    res.status(500).json({ error: "Payment failed" });
   }
 });
 

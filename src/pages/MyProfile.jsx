@@ -20,17 +20,24 @@ import { UpdateBookingModal } from "../components/UpdateBookingModal";
 import { DeleteBooking } from "../components/DeleteBooking";
 
 export default function MyProfile() {
-  const { currentUser } = useContext(AuthContext);
+  const { currentUser, isAdmin } = useContext(AuthContext);
   const [bookings, setBookings] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
   useEffect(() => {
     if (!currentUser) return;
-    const bookingsQuery = query(
-      collection(db, "bookings"),
-      where("bookedBy.uid", "==", currentUser?.uid)
-    );
+    let bookingsQuery;
+    if (isAdmin) {
+      // If the user is an admin, query all bookings
+      bookingsQuery = collection(db, "bookings");
+    } else {
+      // If the user is not an admin, query bookings related to the current user
+      bookingsQuery = query(
+        collection(db, "bookings"),
+        where("bookedBy.uid", "==", currentUser?.uid)
+      );
+    }
     const unsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
       setBookings(
         snapshot.docs
@@ -42,7 +49,7 @@ export default function MyProfile() {
     return () => {
       unsubscribe();
     };
-  }, [currentUser]);
+  }, [currentUser, isAdmin]);
 
   const handleOpenModal = (booking) => {
     setOpenModal(true);
@@ -51,7 +58,8 @@ export default function MyProfile() {
 
   useEffect(() => {
     console.log("selectedBooking updated:", selectedBooking);
-  }, [selectedBooking]);
+    console.log("Admin status:", isAdmin);
+  }, [selectedBooking, isAdmin]);
 
   const handleCloseModal = () => {
     setOpenModal(false);

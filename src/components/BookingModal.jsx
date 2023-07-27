@@ -21,6 +21,7 @@ import { toast } from "react-hot-toast";
 import { bookModalStyle } from "../helper/styles";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 
 export const BookingModal = ({ open, handleClose, hotelInfo }) => {
   const { currentUser } = useContext(AuthContext);
@@ -35,6 +36,10 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
+
+  const stripe = useStripe();
+  const elements = useElements();
 
   const handleChange = (event) => {
     setSelectedGuestCount(event.target.value);
@@ -110,25 +115,58 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
       },
     });
     try {
-      await axios.post("http://localhost:3000/api/send-reminder", {
-        receiver: currentUser.email, // Replace with the actual receiver's email
-        subject: emailSubject,
-        text: emailBody,
+      // Create a payment method and confirm the payment
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: elements.getElement(CardElement),
       });
-      // Call the backend API to sync event with Google Calendar
-      const response = await axios.post(
-        "http://localhost:3000/api/sync-booking",
-        event
-      );
 
-      if (response.status === 200) {
-        toast.success("Booking successful");
-        handleClose();
-        navigate("/my-profile");
+      if (error) {
+        console.error("Error creating payment method:", error.message);
+        setPaymentError(error.message);
+        setIsLoading(false);
+        return;
+      }
+
+      // Call your server endpoint to process the payment
+      const response = await fetch("http://localhost:3000/charge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: hotelInfo?.pricePerNight * getTotalNightsBooked(),
+          currency: "rm",
+          paymentMethodId: paymentMethod.id,
+        }),
+      });
+
+      if (response.ok) {
+        // Payment successful, show success message or redirect to a success page
+        console.log("Payment successful!");
+        await axios.post("http://localhost:3000/api/send-reminder", {
+          receiver: currentUser.email,
+          subject: emailSubject,
+          text: emailBody,
+        });
+        // Call the backend API to sync event with Google Calendar
+        const response = await axios.post(
+          "http://localhost:3000/api/sync-booking",
+          event
+        );
+
+        if (response.status === 200) {
+          toast.success("Booking successful");
+          handleClose();
+          navigate("/my-profile");
+        } else {
+          toast.error("Failed to sync event to Google Calendar");
+        }
       } else {
-        toast.error("Failed to sync event to Google Calendar");
+        const errorData = await response.json();
+        console.error("Payment failed:", errorData.error);
+        toast.error("Failed to process payment");
       }
     } catch (error) {
+      console.error("An error occurred during booking:", error);
       toast.error("An error occurred during booking");
     } finally {
       setIsLoading(false);
@@ -215,19 +253,25 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
             ? hotelInfo?.pricePerNight * getTotalNightsBooked()
             : 0}
         </Typography>
-        <Button
-          onClick={handleReserve}
-          sx={{ width: "100%", marginTop: 2 }}
-          variant="outlined"
-          color="primary"
-          disabled={!dates[0].endDate}
-        >
-          {isLoading ? (
-            <LoadingSpinner color={"primary"} size={20} />
-          ) : (
-            "Reserve"
-          )}
-        </Button>
+        <form onSubmit={handleReserve}>
+          {/* Payment Form */}
+          <CardElement />
+          {paymentError && <div className="error-message">{paymentError}</div>}
+          {/* Reserve Button */}
+          <Button
+            onClick={handleReserve}
+            sx={{ width: "100%", marginTop: 2 }}
+            variant="outlined"
+            color="primary"
+            disabled={!dates[0].endDate || isLoading}
+          >
+            {isLoading ? (
+              <LoadingSpinner color={"primary"} size={20} />
+            ) : (
+              "Reserve"
+            )}
+          </Button>
+        </form>
       </Box>
     </Modal>
   );

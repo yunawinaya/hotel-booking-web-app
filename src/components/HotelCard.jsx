@@ -10,9 +10,10 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import UpdateHotelModal from "./UpdateHotelModal";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { deleteHotel } from "../features/posts/HotelSlice";
 import { bookModalStyle } from "../helper/styles";
+import { AuthContext } from "../context/AuthContext";
 
 export const HotelCard = ({ hotel }) => {
   const {
@@ -27,6 +28,7 @@ export const HotelCard = ({ hotel }) => {
   } = hotel;
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { isAdmin } = useContext(AuthContext);
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const handleShowUpdateModal = () => setShowUpdateModal(true);
@@ -62,26 +64,28 @@ export const HotelCard = ({ hotel }) => {
           <Typography marginTop={1} fontSize={14}>
             ${hotel.pricePerNight} night
           </Typography>
-          <div className="d-flex justify-content-end mt-3">
-            <Button
-              size="small"
-              className="mt-3"
-              variant="outlined"
-              color="inherit"
-              onClick={handleShowUpdateModal}
-            >
-              <i className="bi bi-pencil-square"></i>
-            </Button>
-            <Button
-              size="small"
-              className="mt-3 ms-2"
-              variant="outlined"
-              color="warning"
-              onClick={handleShowDeleteModal}
-            >
-              <i className="bi bi-trash"></i>
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="d-flex justify-content-end mt-3">
+              <Button
+                size="small"
+                className="mt-3"
+                variant="outlined"
+                color="inherit"
+                onClick={handleShowUpdateModal}
+              >
+                <i className="bi bi-pencil-square"></i>
+              </Button>
+              <Button
+                size="small"
+                className="mt-3 ms-2"
+                variant="outlined"
+                color="warning"
+                onClick={handleShowDeleteModal}
+              >
+                <i className="bi bi-trash"></i>
+              </Button>
+            </div>
+          )}
           <UpdateHotelModal
             show={showUpdateModal}
             handleClose={handleCloseUpdateModal}
