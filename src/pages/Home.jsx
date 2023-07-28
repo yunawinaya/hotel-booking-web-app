@@ -1,11 +1,12 @@
 import { Navbar } from "../components/Navbar";
-import { Container, Grid, TextField } from "@mui/material";
+import { Container, Grid, InputAdornment, TextField } from "@mui/material";
 import { HotelCard } from "../components/HotelCard";
 import { LoadingSkeleton } from "../components/LoadingSkeleton";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchHotels } from "../features/posts/HotelSlice";
 import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
+import SearchIcon from "@mui/icons-material/Search";
 
 export default function Home({ setDarkMode }) {
   const dispatch = useDispatch();
@@ -33,12 +34,9 @@ export default function Home({ setDarkMode }) {
       <Navbar setDarkMode={setDarkMode} />
       <main>
         <Container
-          maxWidth="sm"
+          maxWidth="xs"
           sx={{
             marginTop: 4,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
           }}
         >
           <TextField
@@ -50,32 +48,15 @@ export default function Home({ setDarkMode }) {
             onChange={handleSearchChange}
             InputProps={{
               sx: {
-                background: "#F7F9FA",
                 borderRadius: "4px",
                 paddingTop: 1,
-                "& fieldset": {
-                  border: "none",
-                },
-                "&:hover fieldset": {
-                  border: "none",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    border: "none",
-                  },
-                  "&:hover fieldset": {
-                    border: "none",
-                  },
-                },
+                paddingBottom: 1,
               },
-            }}
-            sx={{
-              "& .MuiInputLabel-root": {
-                color: "#ADB5BD",
-              },
-              "& .MuiInputLabel-shrink": {
-                transform: "translate(14px, -3px) scale(0.75)",
-              },
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
             }}
           />
         </Container>
