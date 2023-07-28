@@ -3,17 +3,19 @@ import {
   Button,
   CardContent,
   Container,
+  IconButton,
   ListItem,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Navbar } from "../components/Navbar";
 import { ImageGallery } from "./ImageGallery";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { BookingModal } from "../components/BookingModal";
 import { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchHotelBySlug } from "../features/posts/HotelSlice";
+import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 
 export default function HotelInfo() {
   const [open, setOpen] = useState(false);
@@ -23,6 +25,8 @@ export default function HotelInfo() {
   const params = useParams();
   const { slug } = params;
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     dispatch(fetchHotelBySlug(slug));
   }, [dispatch, slug]);
@@ -30,6 +34,10 @@ export default function HotelInfo() {
   const handleOpen = () => setOpen(true);
 
   const handleClose = () => setOpen(false);
+
+  const handleBackButton = () => {
+    navigate("/hotels");
+  };
 
   return (
     <>
@@ -41,6 +49,23 @@ export default function HotelInfo() {
             marginTop: 2,
           }}
         >
+          <Box
+            sx={{
+              position: "absolute",
+              justifyContent: "flex-start",
+              top: 78,
+              left: 210,
+            }}
+          >
+            <IconButton
+              onClick={handleBackButton}
+              variant="text"
+              color="inherit"
+              size="large"
+            >
+              <KeyboardBackspaceIcon />
+            </IconButton>
+          </Box>
           <Typography fontSize={22} sx={{ lineHeight: 1.9, marginBottom: 3 }}>
             {hotel?.name}
           </Typography>
