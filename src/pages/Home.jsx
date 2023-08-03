@@ -19,9 +19,12 @@ export default function Home({ setDarkMode }) {
     dispatch(fetchHotels());
   }, [dispatch]);
 
-  const filteredHotels = hotels.filter((hotel) =>
-    hotel.address.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredHotels =
+    hotels && Array.isArray(hotels)
+      ? hotels.filter((hotel) =>
+          hotel.address.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : [];
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);

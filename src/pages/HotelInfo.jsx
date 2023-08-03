@@ -16,11 +16,13 @@ import { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchHotelBySlug } from "../features/posts/HotelSlice";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+import GoogleMap from "../components/GoogleMaps";
 
 export default function HotelInfo() {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const hotel = useSelector((state) => state.hotels.hotels);
+  const [hotelLocation, setHotelLocation] = useState({ lat: 0, lng: 0 });
 
   const params = useParams();
   const { slug } = params;
@@ -29,7 +31,23 @@ export default function HotelInfo() {
 
   useEffect(() => {
     dispatch(fetchHotelBySlug(slug));
-  }, [dispatch, slug]);
+
+    fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+        hotel?.address
+      )}&key=AIzaSyA634euFwikaca_kIy7nYTR-oacNMIzyqk`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "OK" && data.results.length > 0) {
+          const location = data.results[0].geometry.location;
+          setHotelLocation({ lat: location.lat, lng: location.lng });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching data from Geocoding API:", error);
+      });
+  }, [dispatch, slug, hotel?.address]);
 
   const handleOpen = () => setOpen(true);
 
@@ -83,6 +101,14 @@ export default function HotelInfo() {
           <Typography variant="subtitle1" sx={{ marginTop: 2 }}>
             {hotel?.aboutThePlace}
           </Typography>
+
+          <hr />
+          <Typography variant="h5" sx={{ marginBottom: 2 }}>
+            Where you&apos;ll be
+          </Typography>
+          <GoogleMap lat={hotelLocation.lat} lng={hotelLocation.lng} />
+          <hr />
+
           <Box sx={{ marginTop: 2 }}>
             <Typography variant="h5">What this place offers</Typography>
             <Box
