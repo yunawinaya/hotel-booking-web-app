@@ -132,6 +132,8 @@ export default function HotelInfo() {
             </Box>
           </Box>
         </Container>
+        <br />
+        <br />
       </main>
       <BookingModal hotelInfo={hotel} open={open} handleClose={handleClose} />
       <Toaster
