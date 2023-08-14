@@ -5,24 +5,38 @@ import {
   Container,
   IconButton,
   ListItem,
+  TextField,
   Typography,
+  Rating,
+  Avatar,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Navbar } from "../components/Navbar";
 import { ImageGallery } from "./ImageGallery";
 import { useParams, useNavigate } from "react-router-dom";
 import { BookingModal } from "../components/BookingModal";
 import { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchHotelBySlug } from "../features/posts/HotelSlice";
+import {
+  addReview,
+  deleteReview,
+  fetchHotelBySlug,
+  fetchReviews,
+} from "../features/posts/HotelSlice";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+import DeleteIcon from "@mui/icons-material/Delete";
 import GoogleMap from "../components/GoogleMaps";
+import { AuthContext } from "../context/AuthContext";
 
 export default function HotelInfo() {
+  const { currentUser, isAdmin } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  const hotel = useSelector((state) => state.hotels.hotels);
+  const hotel = useSelector((state) => state.hotels.hotels) || {};
+  const reviews = useSelector((state) => state.hotels.reviews) || [];
   const [hotelLocation, setHotelLocation] = useState({ lat: 0, lng: 0 });
+  const [reviewContent, setReviewContent] = useState("");
+  const [reviewRating, setReviewRating] = useState(0);
 
   const params = useParams();
   const { slug } = params;
@@ -31,6 +45,7 @@ export default function HotelInfo() {
 
   useEffect(() => {
     dispatch(fetchHotelBySlug(slug));
+    dispatch(fetchReviews({ hotelId: hotel?.id }));
 
     fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
@@ -47,7 +62,7 @@ export default function HotelInfo() {
       .catch((error) => {
         console.error("Error fetching data from Geocoding API:", error);
       });
-  }, [dispatch, slug, hotel?.address]);
+  }, [dispatch, slug, hotel?.address, hotel?.id]);
 
   const handleOpen = () => setOpen(true);
 
@@ -57,33 +72,53 @@ export default function HotelInfo() {
     navigate("/hotels");
   };
 
+  const handleAddReview = () => {
+    if (reviewContent.trim() !== "") {
+      dispatch(
+        addReview({
+          hotelId: hotel?.id,
+          reviewContent,
+          reviewRating,
+          reviewPhoto: currentUser?.photoURL,
+          reviewName: currentUser?.displayName,
+        })
+      );
+      setReviewContent("");
+      setReviewRating(0);
+    }
+  };
+
+  const handleDeleteReview = (reviewId) => {
+    if (isAdmin) {
+      dispatch(deleteReview({ hotelId: hotel?.id, reviewId }));
+    } else {
+      console.log("You are not allowed to delete this review");
+    }
+  };
+
   return (
     <>
       <Navbar />
       <main>
-        <Container
-          maxWidth={"lg"}
+        <Box
           sx={{
+            justifyContent: "flex-start",
             marginTop: 2,
           }}
         >
-          <Box
-            sx={{
-              position: "absolute",
-              justifyContent: "flex-start",
-              top: 78,
-              left: 210,
-            }}
+          <IconButton
+            onClick={handleBackButton}
+            variant="text"
+            color="inherit"
+            size="large"
           >
-            <IconButton
-              onClick={handleBackButton}
-              variant="text"
-              color="inherit"
-              size="large"
-            >
-              <KeyboardBackspaceIcon />
-            </IconButton>
-          </Box>
+            <KeyboardBackspaceIcon />
+            <Typography variant="subtitle1" sx={{ marginLeft: 1 }}>
+              Back
+            </Typography>
+          </IconButton>
+        </Box>
+        <Container maxWidth={"lg"}>
           <Typography fontSize={22} sx={{ lineHeight: 1.9, marginBottom: 3 }}>
             {hotel?.name}
           </Typography>
@@ -125,10 +160,68 @@ export default function HotelInfo() {
               </Box>
 
               <CardContent>
-                <Button onClick={handleOpen} variant="outlined">
+                <Button onClick={handleOpen} variant="outlined" size="large">
                   Reserve
                 </Button>
               </CardContent>
+            </Box>
+          </Box>
+
+          <hr />
+          <Box sx={{ marginTop: 2 }}>
+            <Typography variant="h5">Reviews</Typography>
+            {reviews &&
+              reviews.map((review) => (
+                <Box key={review?.id} sx={{ marginTop: 2 }}>
+                  <Box display="flex" alignItems="center">
+                    <Avatar
+                      src={review?.photo}
+                      sx={{ width: 32, height: 32 }}
+                    />
+                    <Typography variant="h7" sx={{ marginLeft: 1 }}>
+                      {review?.name}
+                    </Typography>
+                  </Box>
+                  <Typography sx={{ marginLeft: 2, marginTop: 1 }}>
+                    {review?.content}
+                  </Typography>
+                  <Rating
+                    value={review?.rating}
+                    readOnly
+                    precision={0.5}
+                    size="small"
+                    sx={{ marginLeft: 2, marginTop: 1 }}
+                  />
+                  <br />
+                  {isAdmin && (
+                    <IconButton onClick={() => handleDeleteReview(review.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  )}
+                </Box>
+              ))}
+            <Box sx={{ marginTop: 2 }}>
+              <Typography variant="h6">Add a Review</Typography>
+              <Rating
+                name="rating"
+                value={reviewRating}
+                onChange={(event, value) => setReviewRating(value)}
+                sx={{ marginBottom: 1 }}
+              />
+              <br />
+              <TextField
+                label="Review"
+                value={reviewContent}
+                onChange={(e) => setReviewContent(e.target.value)}
+                multiline
+                fullWidth
+                rows={4}
+                sx={{ marginBottom: 2 }}
+              />
+              <br />
+              <Button variant="contained" onClick={handleAddReview}>
+                Submit
+              </Button>
             </Box>
           </Box>
         </Container>

@@ -215,9 +215,67 @@ export const saveHotel = createAsyncThunk(
   }
 );
 
+export const fetchReviews = createAsyncThunk(
+  "hotels/fetchReviews",
+  async ({ hotelId }) => {
+    try {
+      const reviewsRef = collection(db, `hotels/${hotelId}/reviews`);
+      const querySnapshot = await getDocs(reviewsRef);
+      const reviews = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return reviews;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
+
+export const addReview = createAsyncThunk(
+  "hotels/addReview",
+  async ({ hotelId, reviewContent, reviewRating, reviewPhoto, reviewName }) => {
+    try {
+      const reviewsCollectionRef = collection(db, `hotels/${hotelId}/reviews`);
+      const newReviewRef = doc(reviewsCollectionRef);
+      const reviewData = {
+        content: reviewContent,
+        rating: reviewRating,
+        photo: reviewPhoto,
+        name: reviewName,
+      };
+      await setDoc(newReviewRef, reviewData);
+
+      const newReview = await getDoc(newReviewRef);
+      return {
+        id: newReview.id,
+        ...newReview.data(),
+      };
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
+
+export const deleteReview = createAsyncThunk(
+  "hotels/deleteReview",
+  async ({ hotelId, reviewId }) => {
+    try {
+      const reviewRef = doc(db, `hotels/${hotelId}/reviews/${reviewId}`);
+      await deleteDoc(reviewRef);
+      return reviewId;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
+
 const hotelsSlice = createSlice({
   name: "hotels",
-  initialState: { hotels: [], loading: true },
+  initialState: { hotels: [], loading: true, reviews: [] },
   extraReducers: (builder) => {
     builder
       .addCase(fetchHotels.fulfilled, (state, action) => {
@@ -244,7 +302,19 @@ const hotelsSlice = createSlice({
         state.hotels = state.hotels.filter(
           (hotel) => hotel.id !== deletedHotelId
         );
+      })
+      .addCase(fetchReviews.fulfilled, (state, action) => {
+        state.reviews = action.payload;
+      })
+      .addCase(addReview.fulfilled, (state, action) => {
+        state.reviews.push(action.payload);
       });
+    builder.addCase(deleteReview.fulfilled, (state, action) => {
+      const deletedReviewId = action.payload;
+      state.reviews = state.reviews.filter(
+        (review) => review.id !== deletedReviewId
+      );
+    });
   },
 });
 
