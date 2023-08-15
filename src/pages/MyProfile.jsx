@@ -97,13 +97,13 @@ export default function MyProfile() {
           <Table sx={{ width: "100%" }} aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Hotel Name</TableCell>
-                <TableCell align="right">Hotel Address</TableCell>
-                <TableCell align="right">Check In</TableCell>
-                <TableCell align="right">Check Out</TableCell>
-                <TableCell align="right">Number of guests</TableCell>
-                <TableCell align="right">Price</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell align="center">Hotel Name</TableCell>
+                <TableCell align="center">Hotel Address</TableCell>
+                <TableCell align="center">Check In</TableCell>
+                <TableCell align="center">Check Out</TableCell>
+                <TableCell align="center">Number of guests</TableCell>
+                <TableCell align="center">Price</TableCell>
+                <TableCell align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -115,29 +115,31 @@ export default function MyProfile() {
                   <TableCell component="th" scope="row">
                     {row?.data?.hotelName}
                   </TableCell>
-                  <TableCell align="right">{row?.data?.hotelAddress}</TableCell>
-                  <TableCell align="right">
+                  <TableCell>{row?.data?.hotelAddress}</TableCell>
+                  <TableCell align="center">
                     {row?.data?.bookingStartDate
                       .split(" ")
                       .slice(0, 4)
                       .join(" ")}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     {row?.data?.bookingEndDate.split(" ").slice(0, 4).join(" ")}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     {row?.data?.numberOfGuests}
                   </TableCell>
-                  <TableCell align="right">${row?.data?.price}</TableCell>
-                  <TableCell align="right">
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleOpenModal(row)}
-                      className="me-2"
-                    >
-                      View Details
-                    </Button>
-                    <DeleteBooking bookingId={row.id} />
+                  <TableCell align="center">${row?.data?.price}</TableCell>
+                  <TableCell>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleOpenModal(row)}
+                        className="me-2"
+                      >
+                        View Details
+                      </Button>
+                      <DeleteBooking bookingId={row.id} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
