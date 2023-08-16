@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Box, Button, Modal, TextField, Typography } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { saveHotel } from "../features/posts/hotelSlice";
+import { saveHotel } from "../features/posts/HotelSlice";
 import { bookModalStyle } from "../helper/styles";
 import { Image } from "react-bootstrap";
 import { storage } from "../lib/firebase";

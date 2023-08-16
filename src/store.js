@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import hotelsReducer from "./features/posts/hotelSlice";
+import hotelsReducer from "./features/posts/HotelSlice";
 import newsReducer from "./features/posts/newsSlice";
 import thunk from "redux-thunk";
 

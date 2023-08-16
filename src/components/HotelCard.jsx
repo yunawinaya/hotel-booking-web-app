@@ -11,7 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import UpdateHotelModal from "./UpdateHotelModal";
 import { useContext, useState } from "react";
-import { deleteHotel } from "../features/posts/hotelSlice";
+import { deleteHotel } from "../features/posts/HotelSlice";
 import { bookModalStyle } from "../helper/styles";
 import { AuthContext } from "../context/AuthContext";
 

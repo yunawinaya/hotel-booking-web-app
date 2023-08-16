@@ -22,7 +22,7 @@ import {
   deleteReview,
   fetchHotelBySlug,
   fetchReviews,
-} from "../features/posts/hotelSlice";
+} from "../features/posts/HotelSlice";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import DeleteIcon from "@mui/icons-material/Delete";
 import GoogleMap from "../components/GoogleMaps";

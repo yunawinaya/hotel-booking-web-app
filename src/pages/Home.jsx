@@ -3,7 +3,7 @@ import { Container, Grid, InputAdornment, TextField } from "@mui/material";
 import { HotelCard } from "../components/HotelCard";
 import { LoadingSkeleton } from "../components/LoadingSkeleton";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchHotels } from "../features/posts/hotelSlice";
+import { fetchHotels } from "../features/posts/HotelSlice";
 import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import SearchIcon from "@mui/icons-material/Search";
