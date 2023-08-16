@@ -39,54 +39,12 @@ export const updateHotel = createAsyncThunk(
     newHotelRatingContent,
     newHotelPriceContent,
     newHotelDescContent,
-    // newHotelFeatureContent,
-    // newHotelRoomContent,
-    // newUrls,
   }) => {
     try {
       const hotelRef = doc(db, `hotels/${hotelId}`);
       const hotelSnap = await getDoc(hotelRef);
       if (hotelSnap.exists()) {
         const hotelData = hotelSnap.data();
-
-        // const updatedRooms = hotelData.rooms.map((room) => {
-        //   const newRoomContent = newHotelRoomContent.find(
-        //     (content) => content.id === room.id
-        //   )?.content;
-        //   if (newRoomContent) {
-        //     return {
-        //       ...room,
-        //       content: newRoomContent,
-        //     };
-        //   }
-        //   return room;
-        // });
-
-        // const updatedFeatures = hotelData.features.map((feature) => {
-        //   const newFeatureText = newHotelFeatureContent.find(
-        //     (content) => content.id === feature.id
-        //   )?.text;
-        //   if (newFeatureText) {
-        //     return {
-        //       ...feature,
-        //       text: newFeatureText,
-        //     };
-        //   }
-        //   return feature;
-        // });
-
-        // const updatedImages = hotelData.images.map((image) => {
-        //   const newImageUrl = newUrls.find(
-        //     (urlObj) => urlObj.id === image.id
-        //   )?.url;
-        //   if (newImageUrl) {
-        //     return {
-        //       ...image,
-        //       img: newImageUrl,
-        //     };
-        //   }
-        //   return image;
-        // });
 
         const updatedData = {
           ...hotelData,
@@ -98,9 +56,6 @@ export const updateHotel = createAsyncThunk(
           rating: newHotelRatingContent || hotelData.rating,
           pricePerNight: newHotelPriceContent || hotelData.pricePerNight,
           aboutThePlace: newHotelDescContent || hotelData.aboutThePlace,
-          // features: updatedFeatures || hotelData.features,
-          // rooms: updatedRooms || hotelData.rooms,
-          // images: updatedImages || hotelData.images,
         };
 
         await updateDoc(hotelRef, updatedData);

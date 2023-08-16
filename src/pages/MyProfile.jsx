@@ -56,11 +56,6 @@ export default function MyProfile() {
     setSelectedBooking(booking);
   };
 
-  useEffect(() => {
-    console.log("selectedBooking updated:", selectedBooking);
-    console.log("Admin status:", isAdmin);
-  }, [selectedBooking, isAdmin]);
-
   const handleCloseModal = () => {
     setOpenModal(false);
     setSelectedBooking(null);
@@ -69,7 +64,7 @@ export default function MyProfile() {
   return (
     <>
       <Navbar />
-      <Container maxWidth={"lg"}>
+      <Container maxWidth={"lg"} sx={{ paddingBottom: 10 }}>
         <Box
           sx={{
             marginTop: 3,

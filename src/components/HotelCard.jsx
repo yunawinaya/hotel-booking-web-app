@@ -11,7 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import UpdateHotelModal from "./UpdateHotelModal";
 import { useContext, useState } from "react";
-import { deleteHotel } from "../features/posts/HotelSlice";
+import { deleteHotel } from "../features/posts/hotelSlice";
 import { bookModalStyle } from "../helper/styles";
 import { AuthContext } from "../context/AuthContext";
 
@@ -62,7 +62,7 @@ export const HotelCard = ({ hotel }) => {
             {hotel.address}
           </Typography>
           <Typography marginTop={1} fontSize={14}>
-            ${hotel.pricePerNight} night
+            RM {hotel.pricePerNight} / night
           </Typography>
           {isAdmin && (
             <div className="d-flex justify-content-end mt-3">

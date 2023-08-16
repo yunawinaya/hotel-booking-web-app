@@ -3,7 +3,7 @@ import { Container, Grid, InputAdornment, TextField } from "@mui/material";
 import { HotelCard } from "../components/HotelCard";
 import { LoadingSkeleton } from "../components/LoadingSkeleton";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchHotels } from "../features/posts/HotelSlice";
+import { fetchHotels } from "../features/posts/hotelSlice";
 import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import SearchIcon from "@mui/icons-material/Search";
@@ -63,7 +63,7 @@ export default function Home({ setDarkMode }) {
             }}
           />
         </Container>
-        <Container maxWidth="lg" sx={{ marginTop: 4 }}>
+        <Container maxWidth="lg" sx={{ marginTop: 4, paddingBottom: 10 }}>
           <Grid container spacing={2}>
             {loading && (
               <Spinner

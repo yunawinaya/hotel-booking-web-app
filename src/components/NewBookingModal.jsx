@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import "react-date-range/dist/styles.css"; //
+import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import {
   Modal,
@@ -16,7 +16,7 @@ import { getDate, addDays, format } from "date-fns";
 import { AuthContext } from "../context/AuthContext";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { LoadingSpinner } from "../components/LoadingSpinner";
+import { LoadingSpinner } from "./LoadingSpinner";
 import { toast } from "react-hot-toast";
 import { bookModalStyle } from "../helper/styles";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +37,6 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
-
   const stripe = useStripe();
   const elements = useElements();
 
@@ -55,9 +54,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
   }
 
   useEffect(() => {
-    // Check if hotelInfo and rooms array exist and have at least one item
     if (hotelInfo?.rooms && hotelInfo.rooms.length > 0) {
-      // Check if content property exists and is not empty
       if (hotelInfo.rooms[0]?.content) {
         setGuests(numberOfGuests(hotelInfo.rooms[0].content.split(" ")[0]));
       }
@@ -100,22 +97,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
     const emailSubject = `Reminder: Your reservation in ${hotelInfo.name}`;
     const emailBody = `This is a friendly reminder that your reservation at ${hotelInfo.name} is scheduled for ${formattedAppointmentDate}. We are looking forward to seeing you on ${formattedReminderDate}!`;
 
-    await addDoc(bookings, {
-      hotelAddress: hotelInfo.address,
-      hotelName: hotelInfo.name,
-      hotelFullGuests: hotelInfo.rooms[0].content.split(" ")[0],
-      numberOfGuests: selectedGuestCount,
-      bookingStartDate: `${dates[0].startDate}`,
-      bookingEndDate: `${dates[0].endDate}`,
-      pricePerNight: hotelInfo.pricePerNight,
-      price: hotelInfo?.pricePerNight * getTotalNightsBooked(),
-      bookedBy: {
-        uid,
-        displayName,
-      },
-    });
     try {
-      // Create a payment method and confirm the payment
       const { error, paymentMethod } = await stripe.createPaymentMethod({
         type: "card",
         card: elements.getElement(CardElement),
@@ -128,26 +110,37 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
         return;
       }
 
-      // Call your server endpoint to process the payment
       const response = await fetch("http://localhost:3000/charge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: hotelInfo?.pricePerNight * getTotalNightsBooked(),
-          currency: "rm",
+          currency: "myr",
           paymentMethodId: paymentMethod.id,
         }),
       });
 
       if (response.ok) {
-        // Payment successful, show success message or redirect to a success page
         console.log("Payment successful!");
+        await addDoc(bookings, {
+          hotelAddress: hotelInfo.address,
+          hotelName: hotelInfo.name,
+          hotelFullGuests: hotelInfo.rooms[0].content.split(" ")[0],
+          numberOfGuests: selectedGuestCount,
+          bookingStartDate: `${dates[0].startDate}`,
+          bookingEndDate: `${dates[0].endDate}`,
+          pricePerNight: hotelInfo.pricePerNight,
+          price: hotelInfo?.pricePerNight * getTotalNightsBooked(),
+          bookedBy: {
+            uid,
+            displayName,
+          },
+        });
         await axios.post("http://localhost:3000/api/send-reminder", {
           receiver: currentUser.email,
           subject: emailSubject,
           text: emailBody,
         });
-        // Call the backend API to sync event with Google Calendar
         const response = await axios.post(
           "http://localhost:3000/api/sync-booking",
           event
@@ -182,7 +175,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
     >
       <Box sx={bookModalStyle}>
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          ${hotelInfo?.pricePerNight} /night
+          RM {hotelInfo?.pricePerNight} /night
         </Typography>
         <FormControl fullWidth sx={{ marginTop: 3 }}>
           <InputLabel id="demo-simple-select-label">
@@ -226,7 +219,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
             component="p"
             variant="h6"
           >
-            ${hotelInfo?.pricePerNight} x{" "}
+            RM {hotelInfo?.pricePerNight} x{" "}
             {dates[0]?.endDate ? getTotalNightsBooked() : 0} nights
           </Typography>
 
@@ -236,7 +229,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
             component="p"
             variant="h6"
           >
-            $
+            RM{" "}
             {dates[0]?.endDate
               ? hotelInfo?.pricePerNight * getTotalNightsBooked()
               : 0}
@@ -248,16 +241,14 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
           component="p"
           variant="h6"
         >
-          Subtotal: $
+          Subtotal: RM{" "}
           {dates[0]?.endDate
             ? hotelInfo?.pricePerNight * getTotalNightsBooked()
             : 0}
         </Typography>
         <form onSubmit={handleReserve}>
-          {/* Payment Form */}
           <CardElement />
           {paymentError && <div className="error-message">{paymentError}</div>}
-          {/* Reserve Button */}
           <Button
             onClick={handleReserve}
             sx={{ width: "100%", marginTop: 2 }}

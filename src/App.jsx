@@ -12,6 +12,7 @@ import { Provider } from "react-redux";
 import store from "./store";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import News from "./pages/News";
 
 const stripePromise = loadStripe(
   "pk_test_51NYMgmH2rvWmmk4iMO4upOxydzvCHOm2nDBUXldUJ8sQvT3wywcEs5NrvL0NPRZlh1nd1UEePeYq9FHFTnDy4d5300kWZ9U6rG"
@@ -46,6 +47,10 @@ export default function App() {
                     <Route
                       path="/my-profile"
                       element={<PrivateRoute component={MyProfile} />}
+                    />
+                    <Route
+                      path="/news"
+                      element={<PrivateRoute component={News} />}
                     />
                     <Route path="*" element={<NotFound />} />
                   </Routes>

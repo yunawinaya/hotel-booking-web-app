@@ -71,7 +71,7 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
     >
       <Box sx={bookModalStyle}>
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          ${hotelInfo?.data.pricePerNight} /night
+          RM {hotelInfo?.data.pricePerNight} /night
         </Typography>
         <FormControl fullWidth sx={{ marginTop: 3 }}>
           <InputLabel id="demo-simple-select-label">
@@ -117,7 +117,7 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
             component="p"
             variant="h6"
           >
-            ${hotelInfo?.data.pricePerNight} x{" "}
+            RM {hotelInfo?.data.pricePerNight} x{" "}
             {dates[0]?.endDate ? getTotalNightsBooked() : 0} nights
           </Typography>
 
@@ -127,7 +127,7 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
             component="p"
             variant="h6"
           >
-            $
+            RM
             {dates[0]?.endDate
               ? hotelInfo?.data.pricePerNight * getTotalNightsBooked()
               : 0}
@@ -139,7 +139,7 @@ export const UpdateBookingModal = ({ open, handleClose, hotelInfo }) => {
           component="p"
           variant="h6"
         >
-          Subtotal: $
+          Subtotal: RM{" "}
           {dates[0]?.endDate
             ? hotelInfo?.data.pricePerNight * getTotalNightsBooked()
             : 0}

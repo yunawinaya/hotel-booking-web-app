@@ -14,7 +14,7 @@ import { useContext, useEffect, useState } from "react";
 import { Navbar } from "../components/Navbar";
 import { ImageGallery } from "./ImageGallery";
 import { useParams, useNavigate } from "react-router-dom";
-import { BookingModal } from "../components/BookingModal";
+import { BookingModal } from "../components/NewBookingModal";
 import { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -22,11 +22,12 @@ import {
   deleteReview,
   fetchHotelBySlug,
   fetchReviews,
-} from "../features/posts/HotelSlice";
+} from "../features/posts/hotelSlice";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import DeleteIcon from "@mui/icons-material/Delete";
 import GoogleMap from "../components/GoogleMaps";
 import { AuthContext } from "../context/AuthContext";
+import StarIcon from "@mui/icons-material/Star";
 
 export default function HotelInfo() {
   const { currentUser, isAdmin } = useContext(AuthContext);
@@ -96,6 +97,11 @@ export default function HotelInfo() {
     }
   };
 
+  const averageRating =
+    reviews.reduce((acc, review) => acc + (review?.rating || 0), 0) /
+    (reviews.length || 1);
+  const reviewsCount = reviews.length;
+
   return (
     <>
       <Navbar />
@@ -118,7 +124,7 @@ export default function HotelInfo() {
             </Typography>
           </IconButton>
         </Box>
-        <Container maxWidth={"lg"}>
+        <Container maxWidth={"lg"} sx={{ paddingBottom: 10 }}>
           <Typography fontSize={22} sx={{ lineHeight: 1.9, marginBottom: 3 }}>
             {hotel?.name}
           </Typography>
@@ -169,7 +175,10 @@ export default function HotelInfo() {
 
           <hr />
           <Box sx={{ marginTop: 2 }}>
-            <Typography variant="h5">Reviews</Typography>
+            <Typography variant="h5" sx={{ marginBottom: 2 }}>
+              <StarIcon sx={{ marginBottom: 0.6 }} /> {averageRating} ·{" "}
+              {reviewsCount} reviews
+            </Typography>
             {reviews &&
               reviews.map((review) => (
                 <Box key={review?.id} sx={{ marginTop: 2 }}>
