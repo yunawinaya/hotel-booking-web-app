@@ -97,10 +97,17 @@ export default function HotelInfo() {
     }
   };
 
-  const averageRating = (
+  const roundRating = (num) => {
+    const rounded = +(Math.round(num + "e+2") + "e-2");
+    return rounded === parseInt(rounded, 10)
+      ? parseInt(rounded, 10)
+      : rounded.toFixed(2);
+  };
+
+  const averageRating = roundRating(
     reviews.reduce((acc, review) => acc + (review?.rating || 0), 0) /
-    (reviews.length || 1)
-  ).toFixed(2);
+      (reviews.length || 1)
+  );
 
   const reviewsCount = reviews.length;
 
