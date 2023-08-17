@@ -121,7 +121,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
             paymentMethodId: paymentMethod.id,
             automatic_payment_methods: {
               enabled: true,
-              allow_redirects: false,
+              allow_redirects: "never",
             },
           }),
         }
