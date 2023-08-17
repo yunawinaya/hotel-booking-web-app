@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://hotel-news-api.yunawinaya.repl.co/api/news";
+const API_URL = "https://hotel-api.yunawinaya.repl.co/api/news";
 
 export const fetchNews = createAsyncThunk("news/fetchNews", async () => {
   const response = await axios.get(API_URL);
