@@ -110,15 +110,18 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
         return;
       }
 
-      const response = await fetch("http://localhost:3000/charge", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: hotelInfo?.pricePerNight * getTotalNightsBooked(),
-          currency: "myr",
-          paymentMethodId: paymentMethod.id,
-        }),
-      });
+      const response = await fetch(
+        "https://hotel-api.yunawinaya.repl.co/charge",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: hotelInfo?.pricePerNight * getTotalNightsBooked(),
+            currency: "myr",
+            paymentMethodId: paymentMethod.id,
+          }),
+        }
+      );
 
       if (response.ok) {
         console.log("Payment successful!");
@@ -136,13 +139,16 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
             displayName,
           },
         });
-        await axios.post("http://localhost:3000/api/send-reminder", {
-          receiver: currentUser.email,
-          subject: emailSubject,
-          text: emailBody,
-        });
+        await axios.post(
+          "https://hotel-api.yunawinaya.repl.co/api/send-reminder",
+          {
+            receiver: currentUser.email,
+            subject: emailSubject,
+            text: emailBody,
+          }
+        );
         const response = await axios.post(
-          "http://localhost:3000/api/sync-booking",
+          "https://hotel-api.yunawinaya.repl.co/api/sync-booking",
           event
         );
 
