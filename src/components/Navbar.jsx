@@ -43,7 +43,8 @@ export const Navbar = () => {
   };
 
   const handleLogout = async () => {
-    await auth.signOut().then(() => navigate("/"));
+    await auth.signOut();
+    navigate("/");
   };
 
   const handleOpenModal = () => {

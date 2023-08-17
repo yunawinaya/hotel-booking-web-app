@@ -1,21 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../lib/firebase";
+import { AuthContext } from "../context/AuthContext";
 
-const PrivateRoute = ({ component: Component }) => {
-  const [authChecked, setAuthChecked] = useState(false);
+const PrivateRoute = ({ component: Component, ...props }) => {
+  const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      setAuthChecked(true);
-      if (!user) {
-        navigate("/");
-      }
-    });
-  }, [navigate]);
+    if (!currentUser) {
+      navigate("/");
+    }
+  }, [currentUser, navigate]);
 
-  return authChecked ? <Component /> : null;
+  return currentUser ? <Component {...props} /> : null;
 };
 
 export default PrivateRoute;

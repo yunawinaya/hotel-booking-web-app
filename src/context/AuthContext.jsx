@@ -13,6 +13,8 @@ export const AuthContextProvider = ({ children, setDarkMode }) => {
         setCurrentUser(user);
         const isAdminUser = await checkIfUserIsAdmin(user.uid);
         setIsAdmin(isAdminUser);
+      } else {
+        setCurrentUser(null);
       }
     });
     return () => unsubscribe();
