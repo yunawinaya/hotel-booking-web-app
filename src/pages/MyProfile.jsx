@@ -96,7 +96,7 @@ export default function MyProfile() {
                 <TableCell align="center">Check Out</TableCell>
                 <TableCell align="center">Number of guests</TableCell>
                 <TableCell align="center">Price</TableCell>
-                <TableCell align="center">Actions</TableCell>
+                {isAdmin && <TableCell align="center">Actions</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
