@@ -105,7 +105,7 @@ export const HotelCard = ({ hotel }) => {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Delete Accommodation
           </Typography>
-          Are you sure you want to delete this accommodation?
+          Are you sure you want to delete the accommodation?
           <div className="d-flex justify-content-end mt-3">
             <Button
               className="me-2"
