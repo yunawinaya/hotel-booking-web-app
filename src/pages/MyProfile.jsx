@@ -122,18 +122,20 @@ export default function MyProfile() {
                     {row?.data?.numberOfGuests}
                   </TableCell>
                   <TableCell align="center">${row?.data?.price}</TableCell>
-                  <TableCell>
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                      <Button
-                        variant="outlined"
-                        onClick={() => handleOpenModal(row)}
-                        className="me-2"
-                      >
-                        View Details
-                      </Button>
-                      <DeleteBooking bookingId={row.id} />
-                    </div>
-                  </TableCell>
+                  {isAdmin && (
+                    <TableCell>
+                      <div style={{ display: "flex", flexDirection: "row" }}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleOpenModal(row)}
+                          className="me-2"
+                        >
+                          View Details
+                        </Button>
+                        <DeleteBooking bookingId={row.id} />
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
