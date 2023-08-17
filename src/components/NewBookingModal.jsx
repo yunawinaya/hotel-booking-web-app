@@ -119,6 +119,10 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
             amount: hotelInfo?.pricePerNight * getTotalNightsBooked(),
             currency: "myr",
             paymentMethodId: paymentMethod.id,
+            automatic_payment_methods: {
+              enabled: true,
+              allow_redirects: false,
+            },
           }),
         }
       );
