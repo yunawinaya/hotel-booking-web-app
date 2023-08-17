@@ -29,10 +29,8 @@ export default function MyProfile() {
     if (!currentUser) return;
     let bookingsQuery;
     if (isAdmin) {
-      // If the user is an admin, query all bookings
       bookingsQuery = collection(db, "bookings");
     } else {
-      // If the user is not an admin, query bookings related to the current user
       bookingsQuery = query(
         collection(db, "bookings"),
         where("bookedBy.uid", "==", currentUser?.uid)
