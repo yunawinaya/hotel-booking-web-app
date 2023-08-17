@@ -103,9 +103,9 @@ export const HotelCard = ({ hotel }) => {
       <Modal open={showDeleteModal} onClose={handleCloseDeleteModal}>
         <Box sx={bookModalStyle}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            Delete Tweet
+            Delete Accommodation
           </Typography>
-          Are you sure you want to delete this tweet?
+          Are you sure you want to delete this accommodation?
           <div className="d-flex justify-content-end mt-3">
             <Button
               className="me-2"
