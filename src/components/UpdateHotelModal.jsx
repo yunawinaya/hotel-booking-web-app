@@ -16,8 +16,6 @@ export default function UpdateHotelModal({
   originalHotelRating,
   originalHotelPrice,
   originalHotelDesc,
-  // originalHotelFeature,
-  // originalHotelRoom,
 }) {
   const [newHotelNameContent, setNewHotelNameContent] =
     useState(originalHotelName);
@@ -29,13 +27,6 @@ export default function UpdateHotelModal({
     useState(originalHotelPrice);
   const [newHotelDescContent, setNewHotelDescContent] =
     useState(originalHotelDesc);
-  // const [newHotelFeatureContent, setNewHotelFeatureContent] =
-  //   useState(originalHotelFeature);
-  // const [newHotelRoomContent, setNewHotelRoomContent] =
-  //   useState(originalHotelRoom);
-  // const [images, setNewImages] = useState([]);
-  // const [newUrls, setNewUrls] = useState([]);
-  // const [progress, setProgress] = useState(0);
   const dispatch = useDispatch();
 
   const handleSave = () => {
@@ -47,9 +38,6 @@ export default function UpdateHotelModal({
         newHotelRatingContent,
         newHotelPriceContent,
         newHotelDescContent,
-        // newHotelFeatureContent,
-        // newHotelRoomContent,
-        // newUrls,
       })
     );
     handleClose();
@@ -58,82 +46,7 @@ export default function UpdateHotelModal({
     setNewHotelRatingContent(originalHotelRating);
     setNewHotelPriceContent(originalHotelPrice);
     setNewHotelDescContent(originalHotelDesc);
-    // setNewHotelFeatureContent(originalHotelFeature);
-    // setNewHotelRoomContent(originalHotelRoom);
-    // setNewUrls([]);
   };
-
-  // const handleFileChange = (e) => {
-  //   for (let i = 0; i < e.target.files.length; i++) {
-  //     const newImage = e.target.files[i];
-  //     newImage["id"] = Math.random();
-  //     setNewImages((prev) => [...prev, newImage]);
-  //   }
-  // };
-
-  // const handleUpload = () => {
-  //   const promises = [];
-  //   images.map((image) => {
-  //     const storageRef = ref(storage, `hotels/${image.name}`);
-  //     const uploadTask = uploadBytesResumable(storageRef, image);
-  //     promises.push(uploadTask);
-  //     uploadTask.on(
-  //       "state_changed",
-  //       (snapshot) => {
-  //         const progress = Math.round(
-  //           (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-  //         );
-  //         setProgress(progress);
-  //       },
-  //       (error) => {
-  //         console.log(error);
-  //       },
-  //       async () => {
-  //         await getDownloadURL(uploadTask.snapshot.ref).then((downloadURLs) => {
-  //           setNewUrls((prevState) => [...prevState, downloadURLs]);
-  //           console.log("url: ", newUrls);
-  //         });
-  //       }
-  //     );
-  //   });
-
-  //   Promise.all(promises).catch((err) => console.log(err));
-
-  //   console.log("image: ", images);
-  //   console.log("progress: ", progress);
-  // };
-
-  // const handleRoomInputChange = (e, index) => {
-  //   const roomContent = [...newHotelRoomContent];
-  //   roomContent[index] = e.target.value;
-  //   setNewHotelRoomContent(roomContent);
-  // };
-
-  // const handleAddRoom = () => {
-  //   setNewHotelRoomContent([...newHotelRoomContent, ""]);
-  // };
-
-  // const handleRemoveRoom = (index) => {
-  //   const roomContent = [...newHotelRoomContent];
-  //   roomContent.splice(index, 1);
-  //   setNewHotelRoomContent(roomContent);
-  // };
-
-  // const handleFeatureInputChange = (e, index) => {
-  //   const roomContent = [...newHotelFeatureContent];
-  //   roomContent[index] = e.target.value;
-  //   setNewHotelFeatureContent(roomContent);
-  // };
-
-  // const handleAddFeature = () => {
-  //   setNewHotelFeatureContent([...newHotelFeatureContent, ""]);
-  // };
-
-  // const handleRemoveFeature = (index) => {
-  //   const roomContent = [...newHotelFeatureContent];
-  //   roomContent.splice(index, 1);
-  //   setNewHotelFeatureContent(roomContent);
-  // };
 
   return (
     <>
